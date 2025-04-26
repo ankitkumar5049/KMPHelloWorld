@@ -17,16 +17,14 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 import composemultiplatformhelloworld.composeapp.generated.resources.Res
 import composemultiplatformhelloworld.composeapp.generated.resources.compose_multiplatform
+import org.example.project.repos.NoteRepository
+import org.example.project.screens.MainScreen
 
 @Composable
 @Preview
 fun App() {
+    val noteRepository = NoteRepository()
     MaterialTheme {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ){
-            Text(text = "Hello World")
-        }
+        MainScreen(noteRepository)
     }
 }
