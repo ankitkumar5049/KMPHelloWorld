@@ -1,11 +1,12 @@
 package org.example.project.repos
 
+import androidx.compose.runtime.mutableStateListOf
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toLocalDateTime
 import org.example.project.model.Note
 
 class NoteRepository {
-    private val _notes = mutableListOf<Note>()
+    private val _notes = mutableStateListOf<Note>()
     val notes: List<Note> get() = _notes
 
     fun addNote(title: String, description: String) {
