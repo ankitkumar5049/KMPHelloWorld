@@ -22,4 +22,14 @@ class NoteRepository {
     fun deleteNote(note: Note) {
         _notes.remove(note)
     }
+
+    fun updateNote(id: Int, title: String, description: String){
+        val note = Note(
+            id = id,
+            title = title,
+            description = description,
+            timestamp = Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault())
+        )
+        _notes.set(index = id-1, note)
+    }
 }

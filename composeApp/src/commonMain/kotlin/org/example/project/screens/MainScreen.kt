@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.example.project.model.Note
@@ -21,6 +22,8 @@ fun MainScreen(noteRepository: NoteRepository) {
 
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+    var editingNoteId by remember { mutableStateOf<Int?>(null) }
+
 
 
     ModalBottomSheetLayout(
@@ -35,7 +38,8 @@ fun MainScreen(noteRepository: NoteRepository) {
                     value = title,
                     onValueChange = { title = it },
                     label = { Text("Title") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -52,7 +56,11 @@ fun MainScreen(noteRepository: NoteRepository) {
                 Button(
                     onClick = {
                         if (title.isNotBlank()) {
-                            noteRepository.addNote(title, description)
+                            if (editingNoteId != null) {
+                                noteRepository.updateNote(editingNoteId!!, title, description)
+                            } else {
+                                noteRepository.addNote(title, description)
+                            }
                             title = ""
                             description = ""
                             coroutineScope.launch { sheetState.hide() }
@@ -66,9 +74,7 @@ fun MainScreen(noteRepository: NoteRepository) {
         }
     ) {
         Scaffold(
-            modifier = Modifier.padding(WindowInsets.systemBars.asPaddingValues())
-                .background(MaterialTheme.colors.primary),
-//
+            modifier = Modifier.padding(WindowInsets.systemBars.asPaddingValues()),
             topBar = {
                 TopAppBar(
                     title = { Text("Notes App") }
@@ -84,14 +90,27 @@ fun MainScreen(noteRepository: NoteRepository) {
                 }
             }
         ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .padding(16.dp)
+            Surface(
+                modifier = Modifier.fillMaxSize()
             ) {
-                LazyColumn {
-                    items(noteRepository.notes) { note ->
-                        NoteItem(note = note, onDelete = { noteRepository.deleteNote(it) })
+                Column(
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .padding(16.dp)
+                ) {
+                    LazyColumn {
+                        items(noteRepository.notes) { note ->
+                            NoteItem(
+                                note = note,
+                                onDelete = { noteRepository.deleteNote(it) },
+                                onEdit = {
+                                    title = it.title
+                                    description = it.description
+                                    editingNoteId = it.id
+                                    coroutineScope.launch { sheetState.show() }
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -100,7 +119,7 @@ fun MainScreen(noteRepository: NoteRepository) {
 }
 
 @Composable
-fun NoteItem(note: Note, onDelete: (Note) -> Unit) {
+fun NoteItem(note: Note, onDelete: (Note) -> Unit, onEdit: (Note) -> Unit) {
     Card(
         elevation = 4.dp,
         modifier = Modifier
@@ -108,15 +127,42 @@ fun NoteItem(note: Note, onDelete: (Note) -> Unit) {
             .fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(note.title, style = MaterialTheme.typography.h6)
+            Text(
+                note.title,
+                style = MaterialTheme.typography.h6,
+            )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(note.description, style = MaterialTheme.typography.body2)
+
+            Text(
+                note.description,
+                style = MaterialTheme.typography.body2
+            )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(note.timestamp.toString(), style = MaterialTheme.typography.caption)
+
+            Text(
+                note.timestamp.toString(),
+                style = MaterialTheme.typography.caption
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = { onDelete(note) }) {
-                Text("Delete")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Button(
+                    onClick = { onEdit(note) },
+                    modifier = Modifier.weight(0.5f),
+                ) {
+                    Text("Edit")
+                }
+                Spacer(modifier = Modifier.weight(0.2f))
+                Button(
+                    onClick = { onDelete(note) },
+                    modifier = Modifier.weight(0.5f),
+                    colors = ButtonDefaults.buttonColors(Color.Red)
+                ) {
+                    Text("Delete")
+                }
             }
         }
     }

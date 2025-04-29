@@ -19,12 +19,13 @@ import composemultiplatformhelloworld.composeapp.generated.resources.Res
 import composemultiplatformhelloworld.composeapp.generated.resources.compose_multiplatform
 import org.example.project.repos.NoteRepository
 import org.example.project.screens.MainScreen
+import org.example.project.themes.NotesAppTheme
 
 @Composable
 @Preview
 fun App() {
     val noteRepository = NoteRepository()
-    MaterialTheme {
+    NotesAppTheme{
         MainScreen(noteRepository)
     }
 }
