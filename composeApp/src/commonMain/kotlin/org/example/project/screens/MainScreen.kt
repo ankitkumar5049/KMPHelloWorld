@@ -1,22 +1,49 @@
 package org.example.project.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Card
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.runtime.*
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import org.example.project.database.NoteEntity
 import org.example.project.model.Note
-import org.example.project.repos.NoteRepository
 
 @Composable
-fun MainScreen(noteRepository: NoteRepository) {
+fun MainScreen(notes: List<NoteEntity>) {
     val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
 
@@ -25,6 +52,9 @@ fun MainScreen(noteRepository: NoteRepository) {
     var editingNoteId by remember { mutableStateOf<Int?>(null) }
 
 
+    notes.forEach { note ->
+        println("notes $note")
+    }
 
     ModalBottomSheetLayout(
         sheetState = sheetState,
@@ -55,16 +85,16 @@ fun MainScreen(noteRepository: NoteRepository) {
 
                 Button(
                     onClick = {
-                        if (title.isNotBlank()) {
-                            if (editingNoteId != null) {
-                                noteRepository.updateNote(editingNoteId!!, title, description)
-                            } else {
-                                noteRepository.addNote(title, description)
-                            }
-                            title = ""
-                            description = ""
-                            coroutineScope.launch { sheetState.hide() }
-                        }
+//                        if (title.isNotBlank()) {
+//                            if (editingNoteId != null) {
+//                                noteRepository.updateNote(editingNoteId!!, title, description)
+//                            } else {
+//                                noteRepository.addNote(title, description)
+//                            }
+//                            title = ""
+//                            description = ""
+//                            coroutineScope.launch { sheetState.hide() }
+//                        }
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -97,20 +127,21 @@ fun MainScreen(noteRepository: NoteRepository) {
                     modifier = Modifier
                         .padding(paddingValues)
                         .padding(16.dp)
+                        .widthIn(max = 300.dp)
                 ) {
                     LazyColumn {
-                        items(noteRepository.notes) { note ->
-                            NoteItem(
-                                note = note,
-                                onDelete = { noteRepository.deleteNote(it) },
-                                onEdit = {
-                                    title = it.title
-                                    description = it.description
-                                    editingNoteId = it.id
-                                    coroutineScope.launch { sheetState.show() }
-                                }
-                            )
-                        }
+//                        items(noteRepository.notes) { note ->
+//                            NoteItem(
+//                                note = note,
+//                                onDelete = { noteRepository.deleteNote(it) },
+//                                onEdit = {
+//                                    title = it.title
+//                                    description = it.description
+//                                    editingNoteId = it.id
+//                                    coroutineScope.launch { sheetState.show() }
+//                                }
+//                            )
+//                        }
                     }
                 }
             }
@@ -126,7 +157,12 @@ fun NoteItem(note: Note, onDelete: (Note) -> Unit, onEdit: (Note) -> Unit) {
             .padding(vertical = 4.dp)
             .fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .widthIn(max = 600.dp),
+
+        ) {
             Text(
                 note.title,
                 style = MaterialTheme.typography.h6,
@@ -151,14 +187,18 @@ fun NoteItem(note: Note, onDelete: (Note) -> Unit, onEdit: (Note) -> Unit) {
             ) {
                 Button(
                     onClick = { onEdit(note) },
-                    modifier = Modifier.weight(0.5f),
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .widthIn(50.dp),
                 ) {
                     Text("Edit")
                 }
                 Spacer(modifier = Modifier.weight(0.2f))
                 Button(
                     onClick = { onDelete(note) },
-                    modifier = Modifier.weight(0.5f),
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .widthIn(50.dp),
                     colors = ButtonDefaults.buttonColors(Color.Red)
                 ) {
                     Text("Delete")
