@@ -43,6 +43,6 @@ fun App(noteDao: NoteDao) {
         }
 
 
-        MainScreen(notes)
+        MainScreen(notes, noteDao)
     }
 }

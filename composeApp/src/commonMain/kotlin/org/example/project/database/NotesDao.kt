@@ -3,8 +3,8 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
-import org.example.project.model.Note
 
 @Dao
 interface NoteDao {
@@ -16,4 +16,7 @@ interface NoteDao {
 
     @Delete
     suspend fun deleteNote(note: NoteEntity)
+
+    @Update
+    suspend fun updateNote(note: NoteEntity)
 }

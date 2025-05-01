@@ -18,6 +18,7 @@ kotlin = "2.1.10"
 kotlinx-coroutines = "1.10.1"
 kotlinxDatetime = "0.5.0"
 koin-bom = "4.0.0"
+kotlinxDatetimeVersion = "0.6.0"
 room = "2.7.0-alpha13"
 ksp = "2.1.10-1.0.29"
 sqlite = "2.5.0-SNAPSHOT"
@@ -42,6 +43,7 @@ koin-core = { module = "io.insert-koin:koin-core"}
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 koin-android = { module = "io.insert-koin:koin-android"}
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose"}
+kotlinx-datetime-v060 = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetimeVersion" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }

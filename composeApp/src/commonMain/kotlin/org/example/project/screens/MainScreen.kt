@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
@@ -29,7 +30,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,11 +39,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import org.example.project.database.NoteDao
 import org.example.project.database.NoteEntity
-import org.example.project.model.Note
 
 @Composable
-fun MainScreen(notes: List<NoteEntity>) {
+fun MainScreen(notes: List<NoteEntity>, noteDao: NoteDao) {
     val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
 
@@ -85,16 +86,23 @@ fun MainScreen(notes: List<NoteEntity>) {
 
                 Button(
                     onClick = {
-//                        if (title.isNotBlank()) {
-//                            if (editingNoteId != null) {
-//                                noteRepository.updateNote(editingNoteId!!, title, description)
-//                            } else {
-//                                noteRepository.addNote(title, description)
-//                            }
-//                            title = ""
-//                            description = ""
-//                            coroutineScope.launch { sheetState.hide() }
-//                        }
+                        if (title.isNotBlank()) {
+                            coroutineScope.launch {
+                                val note = NoteEntity(
+                                    title = title,
+                                    description = description,
+                                    timestamp = Clock.System.now().toEpochMilliseconds()
+                                )
+                                if (editingNoteId != null) {
+                                    noteDao.updateNote(note)
+                                } else {
+                                    noteDao.insertNote(note)
+                                }
+                                title = ""
+                                description = ""
+                                sheetState.hide()
+                            }
+                        }
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -130,18 +138,13 @@ fun MainScreen(notes: List<NoteEntity>) {
                         .widthIn(max = 300.dp)
                 ) {
                     LazyColumn {
-//                        items(noteRepository.notes) { note ->
-//                            NoteItem(
-//                                note = note,
-//                                onDelete = { noteRepository.deleteNote(it) },
-//                                onEdit = {
-//                                    title = it.title
-//                                    description = it.description
-//                                    editingNoteId = it.id
-//                                    coroutineScope.launch { sheetState.show() }
-//                                }
-//                            )
-//                        }
+                        items(notes.sortedByDescending { it.timestamp }){ note ->
+                            NoteItem(
+                                note = note,
+                                onDelete = {},
+                                onEdit = {}
+                            )
+                        }
                     }
                 }
             }
@@ -150,7 +153,7 @@ fun MainScreen(notes: List<NoteEntity>) {
 }
 
 @Composable
-fun NoteItem(note: Note, onDelete: (Note) -> Unit, onEdit: (Note) -> Unit) {
+fun NoteItem(note: NoteEntity, onDelete: (NoteEntity) -> Unit, onEdit: (NoteEntity) -> Unit) {
     Card(
         elevation = 4.dp,
         modifier = Modifier

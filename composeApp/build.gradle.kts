@@ -74,6 +74,7 @@ kotlin {
 
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
+            implementation(libs.kotlinx.datetime.v060)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
