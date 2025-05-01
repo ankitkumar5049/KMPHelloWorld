@@ -51,7 +51,7 @@ fun MainScreen(noteDao: NoteDao) {
 
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var editingNoteId by remember { mutableStateOf<Int?>(null) }
+    var editingNoteId by remember { mutableStateOf<Long?>(null) }
     val notes by noteDao.getAllNotes().collectAsState(initial = emptyList())
 
 
@@ -91,6 +91,7 @@ fun MainScreen(noteDao: NoteDao) {
                         if (title.isNotBlank()) {
                             coroutineScope.launch {
                                 val note = NoteEntity(
+                                    id = editingNoteId ?: 0L,
                                     title = title,
                                     description = description,
                                     timestamp = Clock.System.now().toEpochMilliseconds()
@@ -102,6 +103,7 @@ fun MainScreen(noteDao: NoteDao) {
                                 }
                                 title = ""
                                 description = ""
+                                editingNoteId = null
                                 sheetState.hide()
                             }
                         }
@@ -143,8 +145,17 @@ fun MainScreen(noteDao: NoteDao) {
                         items(notes.sortedByDescending { it.timestamp }){ note ->
                             NoteItem(
                                 note = note,
-                                onDelete = {},
-                                onEdit = {}
+                                onDelete = {
+                                    coroutineScope.launch {
+                                        noteDao.deleteNote(note)
+                                    }
+                                },
+                                onEdit = {
+                                    title = note.title
+                                    description = note.description
+                                    editingNoteId = note.id
+                                    coroutineScope.launch { sheetState.show() }
+                                }
                             )
                         }
                     }
