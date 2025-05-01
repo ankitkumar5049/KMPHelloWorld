@@ -30,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,13 +45,14 @@ import org.example.project.database.NoteDao
 import org.example.project.database.NoteEntity
 
 @Composable
-fun MainScreen(notes: List<NoteEntity>, noteDao: NoteDao) {
+fun MainScreen(noteDao: NoteDao) {
     val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
 
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var editingNoteId by remember { mutableStateOf<Int?>(null) }
+    val notes by noteDao.getAllNotes().collectAsState(initial = emptyList())
 
 
     notes.forEach { note ->
