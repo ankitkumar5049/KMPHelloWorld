@@ -1,7 +1,8 @@
 package org.example.project.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
@@ -29,6 +31,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -43,6 +46,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import org.example.project.database.NoteDao
 import org.example.project.database.NoteEntity
+import org.example.project.utils.formatTimestamp
 
 @Composable
 fun MainScreen(noteDao: NoteDao) {
@@ -53,6 +57,7 @@ fun MainScreen(noteDao: NoteDao) {
     var description by remember { mutableStateOf("") }
     var editingNoteId by remember { mutableStateOf<Long?>(null) }
     val notes by noteDao.getAllNotes().collectAsState(initial = emptyList())
+    val scaffoldState = rememberScaffoldState()
 
 
     notes.forEach { note ->
@@ -81,7 +86,9 @@ fun MainScreen(noteDao: NoteDao) {
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -107,6 +114,9 @@ fun MainScreen(noteDao: NoteDao) {
                                 sheetState.hide()
                             }
                         }
+                        else{
+
+                        }
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -116,6 +126,7 @@ fun MainScreen(noteDao: NoteDao) {
         }
     ) {
         Scaffold(
+            scaffoldState = scaffoldState,
             modifier = Modifier.padding(WindowInsets.systemBars.asPaddingValues()),
             topBar = {
                 TopAppBar(
@@ -125,6 +136,9 @@ fun MainScreen(noteDao: NoteDao) {
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
+                        title = ""
+                        description = ""
+                        editingNoteId = null
                         coroutineScope.launch { sheetState.show() }
                     }
                 ) {
@@ -148,6 +162,7 @@ fun MainScreen(noteDao: NoteDao) {
                                 onDelete = {
                                     coroutineScope.launch {
                                         noteDao.deleteNote(note)
+                                        scaffoldState.snackbarHostState.showSnackbar("Note deleted")
                                     }
                                 },
                                 onEdit = {
@@ -165,13 +180,46 @@ fun MainScreen(noteDao: NoteDao) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NoteItem(note: NoteEntity, onDelete: (NoteEntity) -> Unit, onEdit: (NoteEntity) -> Unit) {
+
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Delete Note?") },
+            text = { Text("Are you sure you want to delete this note?") },
+            confirmButton = {
+                Button(
+                    colors = ButtonDefaults.buttonColors(Color.Red),
+                    onClick = {
+                    onDelete(note)
+                    showDialog = false
+                }) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     Card(
         elevation = 4.dp,
         modifier = Modifier
             .padding(vertical = 4.dp)
             .fillMaxWidth()
+            .combinedClickable(
+                onClick = { onEdit(note) },
+                onLongClick = {
+                    showDialog = true
+                }
+            )
     ) {
         Column(
             modifier = Modifier
@@ -191,35 +239,12 @@ fun NoteItem(note: NoteEntity, onDelete: (NoteEntity) -> Unit, onEdit: (NoteEnti
             )
             Spacer(modifier = Modifier.height(4.dp))
 
+            val timestamp = formatTimestamp(note.timestamp)
+
             Text(
-                note.timestamp.toString(),
+                timestamp,
                 style = MaterialTheme.typography.caption
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Button(
-                    onClick = { onEdit(note) },
-                    modifier = Modifier
-                        .weight(0.5f)
-                        .widthIn(50.dp),
-                ) {
-                    Text("Edit")
-                }
-                Spacer(modifier = Modifier.weight(0.2f))
-                Button(
-                    onClick = { onDelete(note) },
-                    modifier = Modifier
-                        .weight(0.5f)
-                        .widthIn(50.dp),
-                    colors = ButtonDefaults.buttonColors(Color.Red)
-                ) {
-                    Text("Delete")
-                }
-            }
         }
     }
 }
