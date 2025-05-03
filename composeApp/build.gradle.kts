@@ -12,6 +12,10 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
 }
+repositories {
+    google()  // Add this line to ensure Google services can be resolved
+    mavenCentral()
+}
 
 kotlin {
     androidTarget {

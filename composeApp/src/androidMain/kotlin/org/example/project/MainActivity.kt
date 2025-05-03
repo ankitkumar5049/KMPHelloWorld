@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import org.example.project.database.getNotesDatabase
+import org.example.project.utils.ContextFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,7 +15,7 @@ class MainActivity : ComponentActivity() {
         val dao = getNotesDatabase(applicationContext).notesDao()
 
         setContent {
-            App(dao)
+            App(dao, ContextFactory(this))
         }
     }
 }

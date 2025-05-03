@@ -20,6 +20,7 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
@@ -46,10 +47,12 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import org.example.project.database.NoteDao
 import org.example.project.database.NoteEntity
+import org.example.project.utils.ContextFactory
 import org.example.project.utils.formatTimestamp
+import org.example.project.utils.provideSpeechToTextManager
 
 @Composable
-fun MainScreen(noteDao: NoteDao) {
+fun MainScreen(noteDao: NoteDao, platformContext: ContextFactory) {
     val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
 
@@ -59,10 +62,7 @@ fun MainScreen(noteDao: NoteDao) {
     val notes by noteDao.getAllNotes().collectAsState(initial = emptyList())
     val scaffoldState = rememberScaffoldState()
 
-
-    notes.forEach { note ->
-        println("notes $note")
-    }
+    val speechToText = remember { provideSpeechToTextManager(platformContext.getActivity()) }
 
     ModalBottomSheetLayout(
         sheetState = sheetState,
@@ -76,6 +76,15 @@ fun MainScreen(noteDao: NoteDao) {
                     value = title,
                     onValueChange = { title = it },
                     label = { Text("Title") },
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            speechToText.startListening {
+                                title = it
+                            }
+                        }) {
+                            Icon(Icons.Default.Add, contentDescription = "Mic")
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -113,9 +122,6 @@ fun MainScreen(noteDao: NoteDao) {
                                 editingNoteId = null
                                 sheetState.hide()
                             }
-                        }
-                        else{
-
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -156,7 +162,7 @@ fun MainScreen(noteDao: NoteDao) {
                         .widthIn(max = 300.dp)
                 ) {
                     LazyColumn {
-                        items(notes.sortedByDescending { it.timestamp }){ note ->
+                        items(notes.sortedByDescending { it.timestamp }) { note ->
                             NoteItem(
                                 note = note,
                                 onDelete = {
@@ -179,6 +185,7 @@ fun MainScreen(noteDao: NoteDao) {
         }
     }
 }
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
