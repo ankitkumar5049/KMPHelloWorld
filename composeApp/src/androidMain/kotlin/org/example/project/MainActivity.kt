@@ -13,6 +13,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val dao = getNotesDatabase(applicationContext).notesDao()
 
+        window.statusBarColor = android.graphics.Color.parseColor("#ff6700")
         setContent {
             App(dao)
         }
