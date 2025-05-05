@@ -1,21 +1,55 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop.
+# Notes App – Compose Multiplatform
 
-* `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - `commonMain` is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    `iosMain` would be the right folder for such calls.
+## Features
 
-* `/iosApp` contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform, 
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+* Cross-platform support: Android, iOS, Desktop, and Web
+* Built using JetBrains Compose Multiplatform
+* Persistent local storage using Room (Android) and SQLite for other platforms
+* Create, update, and delete notes functionality
+* Editable note list with live updates
+* Timestamp display using Kotlinx.datetime
+* Light and dark theme support
+* Toast messages for invalid input (Android only)
+* Simple and clean UI following Material Design guidelines
+
+## Tech Stack
+
+* Kotlin Multiplatform (KMP)
+* Jetpack Compose Multiplatform
+* Room Database (Android)
+* SQLite with bundled driver (iOS/Desktop)
+* Koin for dependency injection
+* Coroutines for asynchronous operations
+* Material Design 3 components
+
+## Project Structure
+
+* `commonMain`: Shared UI and logic
+* `androidMain`: Android-specific code such as Room DB, toast, and themes
+* `iosMain`: iOS-specific SQLite setup
+* `desktopMain`: Desktop configurations
+
+## Getting Started
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/notes-app-kmp.git
+   ```
+
+2. Open the project in Android Studio (Giraffe or newer)
+
+3. Select the desired target:
+
+   * Android Emulator
+   * iOS Simulator (requires macOS)
+   * Desktop (run from desktopMain)
+
+4. Build and run the app
 
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html),
-[Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform/#compose-multiplatform),
-[Kotlin/Wasm](https://kotl.in/wasm/)…
-
-We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public Slack channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
-If you face any issues, please report them on [GitHub](https://github.com/JetBrains/compose-multiplatform/issues).
-
-You can open the web application by running the `:composeApp:wasmJsBrowserDevelopmentRun` Gradle task.# KMPHelloWorld
+<p align="center">
+  <img src="https://github.com/ankitkumar5049/NotesApp_ComposeMultiplatform/blob/main/composeApp/src/androidMain/kotlin/org/example/project/assets/ss1.png" alt="Chat 1" width="200">
+  <img src="https://github.com/ankitkumar5049/NotesApp_ComposeMultiplatform/blob/main/composeApp/src/androidMain/kotlin/org/example/project/assets/ss2.png" alt="Chat 1" width="200">
+  <img src="https://github.com/ankitkumar5049/NotesApp_ComposeMultiplatform/blob/main/composeApp/src/androidMain/kotlin/org/example/project/assets/ss3.png" alt="Chat 1" width="200">
+</p>
